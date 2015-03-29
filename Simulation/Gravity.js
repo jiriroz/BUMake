@@ -242,15 +242,28 @@ function animate() {
 };
 
 var test = function () {
+    var neighborhood = 3;
     //reset all to 0
     for (var i=0; i<spaceTime.vertices.length; i++) {
         spaceTime.vertices[i].y = 0;
     }
     //update all
-    for (var j=0; i<planets.length; j++) {
-        var x = round25(planets.position.x);
-        var y = round25(planets.position.y);
-    }
+    /*for (var i=0; i<planets.length; i++) {
+        //var x = round25(planets.position.x);
+        //var y = round25(planets.position.y);
+
+        for (var j = -neighborhood+x; j <= neighborhood+x; j++) {
+            for (var k = -neighborhood+y; k <= neighborhood+y; k++) {
+                if (j > 0 && k > 0 && j < 40 && k < 40) {
+                    var weight = computeWeight(planets[i].position,j,k);
+                    //spaceTime.vertices[25*x + y];
+                }
+
+            }
+        }
+
+
+    }*/
 };
 
 var createSpace = function () {
@@ -269,6 +282,8 @@ var createSpace = function () {
     return geometry;
 
 };
+
+
 
 
 
