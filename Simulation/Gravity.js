@@ -1,25 +1,19 @@
-
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
-//var scene = new THREE.Scene();
-
-//var Gravity = Gravity || {};
 
 /***************** Vector Class ***********/
 
-var Vector = function(xp,yp,zp) {
+var Vector = function(xp,yp) {
     this.x = xp;
     this.y = yp;
-    this.z = zp;
 };
 
 Vector.prototype.copy = function() {
-    return new Vector(this.x, this.y, this.z);
+    return new Vector(this.x, this.y);
 };
 
 Vector.prototype.sub = function(other) {
     this.x -= other.x;
     this.y -= other.y;
-    this.z -= other.z;
 };
 
 Vector.sub = function(v1, v2) {
@@ -31,7 +25,6 @@ Vector.sub = function(v1, v2) {
 Vector.prototype.add = function(other) {
     this.x += other.x;
     this.y += other.y;
-    this.z += other.z;
 };
 
 Vector.add = function(v1, v2) {
@@ -43,7 +36,6 @@ Vector.add = function(v1, v2) {
 Vector.prototype.mult = function(scalar) {
     this.x *= scalar;
     this.y *= scalar;
-    this.z *= scalar;
 };
 
 Vector.mult = function(v1, scalar) {
@@ -55,7 +47,6 @@ Vector.mult = function(v1, scalar) {
 Vector.prototype.div = function(scalar) {
     this.x /= scalar;
     this.y /= scalar;
-    this.z /= scalar;
 };
 
 Vector.div = function(v1, scalar) {
@@ -65,11 +56,11 @@ Vector.div = function(v1, scalar) {
 };
 
 Vector.prototype.mag = function() {
-    return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2) + Math.pow(this,z,2));
+    return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
 };
 
 Vector.prototype.normalize = function() {
-    this.div(mag);
+    this.div(this.mag());
 };
 
 Vector.dist = function(v1, v2) {
@@ -134,7 +125,7 @@ Body.prototype.getDistanceTo = function (body2) {
 
 //calculates the attraction force to another body
 Body.prototype.calculateAttraction = function (body2) {
-    var force = Vector.sub(object.position,this.position);
+    var force = Vector.sub(body2.position,this.position);
     var distance = force.mag();
     force.normalize();
     var strength = (G * this.mass * body2.mass) / (distance * distance);
@@ -187,7 +178,10 @@ function init () {
 		document.body.appendChild( container );
 
 		this.camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-		this.camera.position.z = 600;
+		this.camera.position.z = 800;
+                this.camera.position.y = 200;
+                this.camera.rotation.x = -Math.PI/8;
+                    
 
                 var line_material = new THREE.LineBasicMaterial( { color: 0x303030 } ),
                 geometry = new THREE.Geometry(),
@@ -229,7 +223,6 @@ function animate() {
 
 		requestAnimationFrame( animate );
 		this.simulationStep();
-                this.camera.rotation.y += 0.02;
 		render();
 	function render() {
 		this.renderer.render( scene, this.camera );
@@ -262,6 +255,8 @@ Simulation.prototype.render = function () {
 var scene = new THREE.Scene();
 var planets = [];
 createPlanet(0,0,0,0,1,75);
+createPlanet(3, 3, 1, 1, 1, 60);
+
 
 document.addEventListener("DOMContentLoaded", function() {
     var simulation = new Simulation();
