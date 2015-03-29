@@ -8,4 +8,4 @@ How we did it
 
 All the simulations are written in Javascript, using the three.js library to perform the three dimensional animations. First, we simply encoded the correct equations and values for determining the effects of gravity on a body, then the laws of physics took over to create the orbit of the planets, or the orbiting around a central point of the neutron stars. We then implemented animated lines to simulate the gravity wells formed by the orbiting masses in any given simulation. 
 
-Enjoy!
+Enjoy! 
