@@ -3,7 +3,7 @@ var scale = 7.50e12;
 var dT = 25000;
 var G = 6.67e-11;
 
-var spaceTime;
+var lines = [];
 
 
 /***************** Vector Class ***********/
@@ -205,21 +205,7 @@ function init () {
                 var spaceGeometry = this.createSpace();
                 var line = new THREE.Line( spaceGeometry, line_material, THREE.LinePieces );
                 scene.add( line );
-
-///////////////////////////
-    spaceTime = new THREE.Geometry();
-    var floor = -75;
-    var step = 25;
-        for ( var i = 0; i <= 40; i++ ) {
-
-                spaceTime.vertices.push( new THREE.Vector3( - 500 + i*step, floor, 10 ));
-        }
-    var color = new THREE.LineBasicMaterial( { color: new THREE.Color(1,0,0) } );
-    var testLine = new THREE.Line( spaceTime, color );
-    scene.add(testLine);
-
-
-//////////////////////////////
+                createSpaceTime();
 		var light, object;
 
 		scene.add( new THREE.AmbientLight( 0x404040 ) );
@@ -242,7 +228,7 @@ function animate() {
 
 		requestAnimationFrame( animate );
 		simulationStep();
-                test();
+                computeWarping();
 		render();
 	function render() {
 		this.renderer.render( scene, this.camera );
@@ -252,32 +238,61 @@ function animate() {
 
 };
 
-var test = function () {
+var createSpaceTime = function () {
+    var color = new THREE.LineBasicMaterial( { color: new THREE.Color(1,0,0) } );
+    var floor = -75;
+    var step = 25;
+    for (var i = 0; i <= 40; i++ ) {
+        var geometry = new THREE.Geometry();
+        for (var j = 0; j<= 40; j++) {
+            geometry.vertices.push( new THREE.Vector3( - 500 + i*step, floor, -500 + j*step ));
+        }
+        var line = new THREE.Line( geometry, color );
+        scene.add(line);
+    }
+};
+
+
+
+var computeWarping = function () {
     var neighborhood = 3;
     //reset all to 0
-    for (var i=0; i<spaceTime.vertices.length; i++) {
-        spaceTime.vertices[i].y = 0;
+    console.log(lines.length);
+    for (var i = 0; i < lines.length; i++) {
+        for (var j = 0; j < lines[i].vertices.length; j++) {
+            
+            lines[i][j].y = 0;
+        }
     }
     //update all
-    /*for (var i=0; i<planets.length; i++) {
-        //var x = round25(planets.position.x);
-        //var y = round25(planets.position.y);
+    
+    for (var i=0; i<planets.length; i++) {
+        var x = round25(planets[i].position.x);
+        var y = round25(planets[i].position.y);
 
         for (var j = -neighborhood+x; j <= neighborhood+x; j++) {
             for (var k = -neighborhood+y; k <= neighborhood+y; k++) {
                 if (j > 0 && k > 0 && j < 40 && k < 40) {
-                    var weight = computeWeight(planets[i].position,j,k);
-                    //spaceTime.vertices[25*x + y];
+                    var weight = computeWeight(planets[i].position,[j*25,k*25]);
+                    lines[j].vertices[k].y -= weight;
                 }
 
             }
         }
 
 
-    }*/
+    }
+};
+
+var computeWeight = function (positionPlanet,positionNode) {
+    var dx = positionPlanet.x - positionNode[0];
+    var dy = positionPlanet.y - positionNode[1];
+    var dist = Math.sqrt(dx*dx + dy*dy);
+    return dist*10;
 };
 
 var createSpace = function () {
+
     var geometry = new THREE.Geometry();
     var floor = -75;
     var step = 25;
