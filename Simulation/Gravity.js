@@ -202,9 +202,6 @@ function init () {
 
                 var line_material = new THREE.LineBasicMaterial( { color: 0x3399ff } );
 
-                //var spaceGeometry = this.createSpace();
-                //var line = new THREE.Line( spaceGeometry, line_material, THREE.LinePieces );
-                //scene.add( line );
                 createSpaceTime();
 		var light, object;
 
@@ -225,7 +222,6 @@ function init () {
 }
 
 function animate() {
-
 	requestAnimationFrame( animate );
 	simulationStep();
         computeWarping();
@@ -240,12 +236,20 @@ function animate() {
 
 var createSpaceTime = function () {
     var color = new THREE.LineBasicMaterial( { color: new THREE.Color(1,0,0) } );
-    var floor = -75;
+    var floor = 0;
     var step = 25;
     for (var i = 0; i <= 40; i++ ) {
         var geometry = new THREE.Geometry();
         for (var j = 0; j<= 40; j++) {
-            geometry.vertices.push( new THREE.Vector3( - 500 + i*step, floor, -500 + j*step ));
+            var sum = 0;
+            for (var k = 0; k < planets.length; k++) {
+            
+                var dist = computeDistance(planets[k].position,[(i-20)*25,(j-20)*25]);
+                if (dist < 200) {
+                    sum -= 100/(Math.sqrt(dist));
+                }
+            }
+            geometry.vertices.push( new THREE.Vector3( - 500 + i*step, sum, -500 + j*step ));
         }
         var line = new THREE.Line( geometry, color );
         lines.push(line);
@@ -260,35 +264,46 @@ var computeWarping = function () {
     //reset all to 0
     for (var i = 0; i < lines.length; i++) {
         for (var j = 0; j < lines[i].geometry.vertices.length; j++) {
-            lines[i].geometry.vertices[j].y = 0;
+           scene.remove(lines[i]);
         }
     }
+    createSpaceTime();
     //update all
+
+    /*for (var i = 0; i < lines.length; i++) {
+        for (var j = 0; j < lines[i].geometry.vertices.length; j++) {
+            lines[i].geometry.vertices[j].y = Math.random() * 10;
+        }
+    }*/
+
     
-    for (var i=0; i<planets.length; i++) {
+    /*for (var i=0; i<planets.length; i++) {
         var x = round25(planets[i].position.x/scale*500)/25;
         var y = round25(planets[i].position.y/scale*500)/25;
 
         for (var j = -neighborhood+x; j <= neighborhood+x; j++) {
             for (var k = -neighborhood+y; k <= neighborhood+y; k++) {
                 if (j > -20 && k > -20 && j < 20 && k < 20) {
-                    console.log(j,k);
                     var weight = computeWeight(planets[i].position,[j*25,k*25]);
                     lines[j+20].geometry.vertices[k+20].y -= weight;
+                    //console.log(weight);
+                    console.log("Updated");
                 }
 
             }
         }
-
-
     }
+    for (var i = 0; i < lines.length; i++) {
+        for (var j = 0; j < lines[i].geometry.vertices.length; j++) {
+            //lines[i].geometry.vertices[j].y = Math.random() * 10;
+        }
+    }*/
 };
 
-var computeWeight = function (positionPlanet,positionNode) {
+var computeDistance = function (positionPlanet,positionNode) {
     var dx = (positionPlanet.x/scale*500) - positionNode[0];
     var dy = (positionPlanet.y/scale*500) - positionNode[1];
-    var dist = Math.sqrt(dx*dx + dy*dy);
-    return dist;
+    return Math.sqrt(dx*dx + dy*dy);
 };
 
 var createSpace = function () {
