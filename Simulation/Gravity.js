@@ -74,6 +74,17 @@ Vector.dist = function(v1, v2) {
     return v3.mag();    
 };
 
+/******************** Helpers ****************/
+
+var round25 = function(num) {
+    var mod = num%25;
+    if (mod < 12.5) {
+        return num - mod;
+    } else {
+        return num + (25 - mod);
+    }
+}
+
 /**********************************************************/
 
                      /* Body class */
