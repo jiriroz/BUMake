@@ -1,9 +1,20 @@
-var Body = function () {
-    this.position;
-    this.velocity;
-    this.acceleration;
-    this.mass;
-    this.image;
+//Planet body
+var Body = function (x, y, velx, vely, mass, radius) {
+    this.position = new Gravity.Vector(x,y) ;
+    this.velocity = new Gravity.Vector(velx,vely);
+    this.acceleration = new Gravity.Vector(0,0);
+    this.mass = mass;
+    this.createImage(radius);
+};
+
+//creates a uniformly colored sphere
+Body.prototype.createImage = function (radius) {
+    var geometry = new THREE.SphereGeometry( radius, 20, 20 );
+    var material = new THREE.MeshBasicMaterial( { color: 0x3399ff });
+    this.image = new THREE.Mesh( new THREE.SphereGeometry( 75, 20, 20 ), material );
+    /*Never modify a y-position of an image!!!*/
+    this.image.position.set( this.x, 0, this.z );
+    scene.add(this.image);
 };
 
 //wraps all methods that are run every step of the

@@ -14,9 +14,7 @@
 		document.body.appendChild( container );
 
 		camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-		camera.position.z = 800;
-                camera.position.y = 200;
-                camera.rotation.x = -Math.PI/8;
+		camera.position.z = 600;
 
 		scene = new THREE.Scene();
 
@@ -38,16 +36,13 @@
                 var line = new THREE.Line( geometry, line_material, THREE.LinePieces );
                 scene.add( line );
 
-                /* light */
-		var light;
+		var light, object;
 
 		scene.add( new THREE.AmbientLight( 0x404040 ) );
 
 		light = new THREE.DirectionalLight( 0xffffff );
 		light.position.set( 0, 1, 0 );
 		scene.add( light );
-                /* /light */
-
 
 		var map = THREE.ImageUtils.loadTexture( 'earth.gif' );
 		map.wrapS = map.wrapT = THREE.RepeatWrapping;
