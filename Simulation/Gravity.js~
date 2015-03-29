@@ -1,10 +1,8 @@
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
 var scale = 7.50e12;
 var dT = 25000;
 var G = 6.67e-11;
-
-var spaceTime;
-
 
 /***************** Vector Class ***********/
 
@@ -147,6 +145,8 @@ Body.prototype.calculateAttraction = function (body2) {
 /************************************************************/
 function Simulation () {
     this.planets = [];
+    //this.init();
+    //this.animate();
     this.run();
 }
 
@@ -178,7 +178,7 @@ Simulation.prototype.run = function () {
     init();
     animate();
 
-function init () {
+    function init () {
 		var container;
 		container = document.createElement( 'div' );
 		document.body.appendChild( container );
@@ -191,24 +191,10 @@ function init () {
 
                 var line_material = new THREE.LineBasicMaterial( { color: 0x3399ff } );
 
-                var spaceGeometry = this.createSpace();
+                var spaceGeometry = createSpace();
                 var line = new THREE.Line( spaceGeometry, line_material, THREE.LinePieces );
                 scene.add( line );
 
-///////////////////////////
-    spaceTime = new THREE.Geometry();
-    var floor = -75;
-    var step = 25;
-        for ( var i = 0; i <= 40; i++ ) {
-
-                spaceTime.vertices.push( new THREE.Vector3( - 500 + i*step, floor, 10 ));
-        }
-    var color = new THREE.LineBasicMaterial( { color: new THREE.Color(1,0,0) } );
-    var testLine = new THREE.Line( spaceTime, color );
-    scene.add(testLine);
-
-
-//////////////////////////////
 		var light, object;
 
 		scene.add( new THREE.AmbientLight( 0x404040 ) );
@@ -224,33 +210,19 @@ function init () {
 		container.appendChild( this.renderer.domElement );
 
 		window.addEventListener( 'resize', this.onWindowResize, false );
+    }
 
-}
+    function animate() {
 
-function animate() {
-
-		requestAnimationFrame( animate );
-		simulationStep();
-                test();
-		render();
+	requestAnimationFrame( animate );
+	simulationStep();
+	render();
 	function render() {
 		this.renderer.render( scene, this.camera );
 
 	}
-}
-
-};
-
-var test = function () {
-    //reset all to 0
-    for (var i=0; i<spaceTime.vertices.length; i++) {
-        spaceTime.vertices[i].y = 0;
     }
-    //update all
-    for (var j=0; i<planets.length; j++) {
-        var x = round25(planets.position.x);
-        var y = round25(planets.position.y);
-    }
+
 };
 
 var createSpace = function () {
@@ -280,6 +252,7 @@ Simulation.prototype.onWindowResize = function () {
 };
 
 Simulation.prototype.render = function () {
+    //var timer = Date.now() * 0.0001;
     this.renderer.render( scene, this.camera );
 };
 /******************************************************************/
@@ -305,7 +278,9 @@ createPlanet(7.779e11, 0.000e00, 0.000e00, 1.307e04, 1.899e27, 30);
 createPlanet(1.427e12, 0.000e00, 0.000e00, 9.639e03, 5.6846e26, 20)
 
 
-var simulation = new Simulation();
+document.addEventListener("DOMContentLoaded", function() {
+    var simulation = new Simulation();
+});
 
 
 
