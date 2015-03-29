@@ -1,6 +1,8 @@
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
-var scale = 2.50e+11;
+var scale = 7.50e12;
+var dT = 25000;
+var G = 6.67e-11;
 
 /***************** Vector Class ***********/
 
@@ -69,29 +71,28 @@ Vector.dist = function(v1, v2) {
     var v3 = Vector.sub(v2,v1);
     return v3.mag();    
 };
+
 /**********************************************************/
 
                      /* Body class */
 
 /***********************************************************/
 
-var G = 6.67e-11;
-var scale = 2.50e11; 
-
 //Planet body
-var Body = function (x, y, velx, vely, mass, radius) {
-    this.position = new Vector(x,y) ;
+var Body = function (x, y, velx, vely, mass, radius, col) {
+    this.position = new Vector(x,y);
     this.velocity = new Vector(velx,vely);
     this.acceleration = new Vector(0,0);
     this.mass = mass;
     this.createImage(radius);
+    this.color = col;
 };
 
 //creates a uniformly colored sphere
 Body.prototype.createImage = function (radius) {
     var geometry = new THREE.SphereGeometry( radius, 20, 20 );
-    var material = new THREE.MeshBasicMaterial( { color: 0x3399ff });
-    this.image = new THREE.Mesh( new THREE.SphereGeometry( 75, 20, 20 ), material );
+    var material = new THREE.MeshBasicMaterial( { color: new THREE.Color(Math.random(),Math.random(),Math.random()) });
+    this.image = new THREE.Mesh( new THREE.SphereGeometry( radius, 20, 20 ), material );
     /*Never modify a y-position of an image!!!*/
     this.image.position.set( this.position.x, 0, this.position.y );
     scene.add(this.image);
@@ -106,14 +107,14 @@ Body.prototype.run = function () {
 
 //displays the body
 Body.prototype.display = function () {
-    this.image.position.set(this.position.x / scale / 500, 0, this.position.y / scale / 500);
+    this.image.position.set(this.position.x / scale * 500, 0, this.position.y / scale * 500);
 };
 
 //gets called for every step of the animation,
 //updates the properties of the body
 Body.prototype.update = function () {
-    this.velocity.add(this.acceleration);
-    this.position.add(this.velocity);
+    this.velocity.add(Vector.mult(this.acceleration, dT));
+    this.position.add(Vector.mult(this.velocity, dT));
     this.acceleration.mult(0);
 };
 
@@ -188,7 +189,7 @@ function init () {
                 this.camera.rotation.x = -Math.PI/8;
                     
 
-                var line_material = new THREE.LineBasicMaterial( { color: 0x303030 } ),
+                var line_material = new THREE.LineBasicMaterial( { color: 0x3399ff } ),
                 geometry = new THREE.Geometry(),
                 floor = -75, step = 25;
 
@@ -259,19 +260,22 @@ Simulation.prototype.render = function () {
 
 var scene = new THREE.Scene();
 var planets = [];
-createPlanet(0.0e+0, 0.0e+0, 0.0e+0, 0.0e+0, 1.989e+30, 75);
-createPlanet(5.790e+10, 0.000e+0, 0.0e+0, 2395e+4, 3.302e23, 75);
-createPlanet(1.082e11, 0.000e00, 0.000e00, 1.750e04, 4.869e24 75);
-createPlanet(1.496e11 0.000e00 0.000e00 1.490e04 5.974e24 75
-createPlanet(2.279e11, 0.000e00 0.000e00 1.205e04 6.419e23
+
+
+createPlanet(1.496e11, 0.000e00, 0.000e00, 2.980e04, 5.974e24, 20);
+createPlanet(6.579e12, 0.000e00, 3.410e05, 0.000e00, 1.3055e22, 20);
+createPlanet(5.790e10, 0.000e00, 0.000e00, 4.790e04, 3.302e23, 10);
+createPlanet(0.000e00, 0.000e00, 0.000e00, 0.000e00, 1.989e30, 20);
+createPlanet(1.082e11, 0.000e00, 0.000e00, 3.500e04, 4.869e24, 13)
+createPlanet(3.59e13, 0.000e00,  -1.641e06, 0.000e00, 6.419e33, 10);
+createPlanet(2.279e11, 0.000e00, 0.000e00, 2.410e04, 6.419e23, 20);
+createPlanet(7.779e11, 0.000e00, 0.000e00, 1.307e04, 1.899e27, 30);
+createPlanet(1.427e12, 0.000e00, 0.000e00, 9.639e03, 5.6846e26, 20)
 
 
 document.addEventListener("DOMContentLoaded", function() {
     var simulation = new Simulation();
 });
-
-//simulation.createPlanet(0,0,0,0,1,75);
-//simulation.animate();
 
 
 
