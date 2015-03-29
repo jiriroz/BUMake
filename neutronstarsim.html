@@ -1,6 +1,11 @@
-<DOCTYPE! html>
+﻿<!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 <style>
 canvas {
 	border:1px solid black;
@@ -13,16 +18,32 @@ canvas {
 h1 {
 	text-align:center;
 	font-family:courier;
+	color:white;
 }
 button {
 	position:absolute;
 	top:600px;
-	left:775px;
+	left:875px;
+	text-color:black;
+}
+form {
+	position:absolute;
+	top:600px;
+	left:650px;
 }
 a {
 	position:absolute;
-	top:598px;
-	left:875px;
+	top:605px;
+	left:980px;
+	color:white;
+	font-size:125%;
+	font-family:courier;
+}
+a:active {
+	color:blue;
+}
+body {
+	background-image:url("http://upload.wikimedia.org/wikipedia/commons/9/9e/Milky_Way_IR_Spitzer.jpg");
 }
 </style>
 </head>
@@ -31,12 +52,15 @@ a {
 
 <title> Neutron Star Simulator! </title>
 
-<h1> Neutron Star Simulation </h1>
+<form method="link" action="homepage.html">
+<input class="btn" type="submit" value="Return to the homepage">
+</form>
+<h1><b>Neutron Star Simulation</b></h1>
 
 <canvas></canvas>
 
-<button type="button" onclick="alert('This will reset the simulation')">Reset</button>
-<a  title="The javascript for this simulation on github" href="http://www.github.com/jirkaroz/BUMake" target="_blank"> The code! </a>
+<button class="btn" onclick="alert('This will reset the simulation')">Reset</button>
+<a  title="The javascript for this simulation on github" href="http://www.github.com/jirkaroz/BUMake" target="_blank"><b>The code!</b></a>
 
 </body>
 </html>
