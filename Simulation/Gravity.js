@@ -202,9 +202,9 @@ function init () {
 
                 var line_material = new THREE.LineBasicMaterial( { color: 0x3399ff } );
 
-                var spaceGeometry = this.createSpace();
-                var line = new THREE.Line( spaceGeometry, line_material, THREE.LinePieces );
-                scene.add( line );
+                //var spaceGeometry = this.createSpace();
+                //var line = new THREE.Line( spaceGeometry, line_material, THREE.LinePieces );
+                //scene.add( line );
                 createSpaceTime();
 		var light, object;
 
@@ -226,10 +226,10 @@ function init () {
 
 function animate() {
 
-		requestAnimationFrame( animate );
-		simulationStep();
-                computeWarping();
-		render();
+	requestAnimationFrame( animate );
+	simulationStep();
+        computeWarping();
+        render();
 	function render() {
 		this.renderer.render( scene, this.camera );
 
@@ -248,6 +248,7 @@ var createSpaceTime = function () {
             geometry.vertices.push( new THREE.Vector3( - 500 + i*step, floor, -500 + j*step ));
         }
         var line = new THREE.Line( geometry, color );
+        lines.push(line);
         scene.add(line);
     }
 };
@@ -257,24 +258,23 @@ var createSpaceTime = function () {
 var computeWarping = function () {
     var neighborhood = 3;
     //reset all to 0
-    console.log(lines.length);
     for (var i = 0; i < lines.length; i++) {
-        for (var j = 0; j < lines[i].vertices.length; j++) {
-            
-            lines[i][j].y = 0;
+        for (var j = 0; j < lines[i].geometry.vertices.length; j++) {
+            lines[i].geometry.vertices[j].y = 0;
         }
     }
     //update all
     
     for (var i=0; i<planets.length; i++) {
-        var x = round25(planets[i].position.x);
-        var y = round25(planets[i].position.y);
+        var x = round25(planets[i].position.x/scale*500)/25;
+        var y = round25(planets[i].position.y/scale*500)/25;
 
         for (var j = -neighborhood+x; j <= neighborhood+x; j++) {
             for (var k = -neighborhood+y; k <= neighborhood+y; k++) {
-                if (j > 0 && k > 0 && j < 40 && k < 40) {
+                if (j > -20 && k > -20 && j < 20 && k < 20) {
+                    console.log(j,k);
                     var weight = computeWeight(planets[i].position,[j*25,k*25]);
-                    lines[j].vertices[k].y -= weight;
+                    lines[j+20].geometry.vertices[k+20].y -= weight;
                 }
 
             }
@@ -285,10 +285,10 @@ var computeWarping = function () {
 };
 
 var computeWeight = function (positionPlanet,positionNode) {
-    var dx = positionPlanet.x - positionNode[0];
-    var dy = positionPlanet.y - positionNode[1];
+    var dx = (positionPlanet.x/scale*500) - positionNode[0];
+    var dy = (positionPlanet.y/scale*500) - positionNode[1];
     var dist = Math.sqrt(dx*dx + dy*dy);
-    return dist*10;
+    return dist;
 };
 
 var createSpace = function () {
