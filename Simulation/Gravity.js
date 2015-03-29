@@ -1,5 +1,7 @@
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
+var scale = 2.50e+11;
+
 /***************** Vector Class ***********/
 
 var Vector = function(xp,yp) {
@@ -69,9 +71,12 @@ Vector.dist = function(v1, v2) {
 };
 /**********************************************************/
 
-/* Body class */
+                     /* Body class */
+
 /***********************************************************/
+
 var G = 6.67e-11;
+var scale = 2.50e11; 
 
 //Planet body
 var Body = function (x, y, velx, vely, mass, radius) {
@@ -101,7 +106,7 @@ Body.prototype.run = function () {
 
 //displays the body
 Body.prototype.display = function () {
-    this.image.position.set(this.position.x, 0, this.position.y);
+    this.image.position.set(this.position.x / scale / 500, 0, this.position.y / scale / 500);
 };
 
 //gets called for every step of the animation,
@@ -152,7 +157,7 @@ var createPlanet = function (x,y,velx,vely,mass,radius) {
 var simulationStep = function () {
     //N-Body simulation
     for (var i=0; i < planets.length; i++) {
-        for (var j=0; j<planets.length; j++) {
+        for (var j=0; j< planets.length; j++) {
             if (i != j) {
                 var gravity = planets[i].calculateAttraction(planets[j]);
                 planets[i].applyForce(gravity);
@@ -187,13 +192,13 @@ function init () {
                 geometry = new THREE.Geometry(),
                 floor = -75, step = 25;
 
-                for ( var i = 0; i <= 40; i ++ ) {
+                for ( var i = 0; i <= 40; i++ ) {
 
-                    geometry.vertices.push( new THREE.Vector3( - 500, floor, i * step - 500 ) );
-                    geometry.vertices.push( new THREE.Vector3(   500, floor, i * step - 500 ) );
+                    geometry.vertices.push( new THREE.Vector3( - 500, floor, i * step - (500) ) );
+                    geometry.vertices.push( new THREE.Vector3(   (500), floor, i * step - (500) ) );
 
-                    geometry.vertices.push( new THREE.Vector3( i * step - 500, floor, -500 ) );
-                    geometry.vertices.push( new THREE.Vector3( i * step - 500, floor,  500 ) );
+                    geometry.vertices.push( new THREE.Vector3( i * step - (500), floor, -500 ) );
+                    geometry.vertices.push( new THREE.Vector3( i * step - (500), floor,  500 ) );
 
                 }
 
@@ -222,7 +227,7 @@ function init () {
 function animate() {
 
 		requestAnimationFrame( animate );
-		this.simulationStep();
+		simulationStep();
 		render();
 	function render() {
 		this.renderer.render( scene, this.camera );
@@ -254,8 +259,11 @@ Simulation.prototype.render = function () {
 
 var scene = new THREE.Scene();
 var planets = [];
-createPlanet(0,0,0,0,1,75);
-createPlanet(3, 3, 1, 1, 1, 60);
+createPlanet(0.0e+0, 0.0e+0, 0.0e+0, 0.0e+0, 1.989e+30, 75);
+createPlanet(5.790e+10, 0.000e+0, 0.0e+0, 2395e+4, 3.302e23, 75);
+createPlanet(1.082e11, 0.000e00, 0.000e00, 1.750e04, 4.869e24 75);
+createPlanet(1.496e11 0.000e00 0.000e00 1.490e04 5.974e24 75
+createPlanet(2.279e11, 0.000e00 0.000e00 1.205e04 6.419e23
 
 
 document.addEventListener("DOMContentLoaded", function() {
