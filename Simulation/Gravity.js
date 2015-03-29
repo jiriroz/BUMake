@@ -1,9 +1,10 @@
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
-var scale = 7.50e12;
+var scale = 2.50e+11;
 var dT = 25000;
 var G = 6.67e-11;
 
-var lines = [];
+var linesX = [];
+var linesZ = [];
 
 
 /***************** Vector Class ***********/
@@ -90,22 +91,25 @@ var round25 = function(num) {
                      /* Body class */
 
 /***********************************************************/
-
 //Planet body
-var Body = function (x, y, velx, vely, mass, radius, col) {
+var Body = function (x, y, velx, vely, mass, radius,img) {
     this.position = new Vector(x,y);
     this.velocity = new Vector(velx,vely);
     this.acceleration = new Vector(0,0);
     this.mass = mass;
-    this.createImage(radius);
-    this.color = col;
+    this.createImage(radius, img);
+    console.log(img);
 };
 
 //creates a uniformly colored sphere
-Body.prototype.createImage = function (radius) {
+Body.prototype.createImage = function (radius, img) {
+    var map = THREE.ImageUtils.loadTexture(img);
+    map.wrapS = map.wrapT = THREE.RepeatWrapping;
+    map.anisotropy = 16;
+    map.repeat.set(4,4);
     var geometry = new THREE.SphereGeometry( radius, 20, 20 );
-    var material = new THREE.MeshBasicMaterial( { color: new THREE.Color(Math.random(),Math.random(),Math.random()) });
-    this.image = new THREE.Mesh( new THREE.SphereGeometry( radius, 20, 20 ), material );
+    var material = new THREE.MeshLambertMaterial( { map: map, side: THREE.DoubleSide });
+    this.image = new THREE.Mesh( geometry , material );
     /*Never modify a y-position of an image!!!*/
     this.image.position.set( this.position.x, 0, this.position.y );
     scene.add(this.image);
@@ -161,8 +165,8 @@ function Simulation () {
     this.run();
 }
 
-var createPlanet = function (x,y,velx,vely,mass,radius) {
-    planets.push(new Body(x,y,velx,vely,mass,radius));
+var createPlanet = function (x,y,velx,vely,mass,radius,img) {
+    planets.push(new Body(x,y,velx,vely,mass,radius,img));
 };
 
 
@@ -202,7 +206,7 @@ function init () {
 
                 var line_material = new THREE.LineBasicMaterial( { color: 0x3399ff } );
 
-                createSpaceTime();
+                createSpaceTimeZ();
 		var light, object;
 
 		scene.add( new THREE.AmbientLight( 0x404040 ) );
@@ -230,11 +234,10 @@ function animate() {
 		this.renderer.render( scene, this.camera );
 
 	}
-}
-
+    }
 };
 
-var createSpaceTime = function () {
+var createSpaceTimeZ = function () {
     var color = new THREE.LineBasicMaterial( { color: new THREE.Color(1,0,0) } );
     var floor = 0;
     var step = 25;
@@ -252,52 +255,44 @@ var createSpaceTime = function () {
             geometry.vertices.push( new THREE.Vector3( - 500 + i*step, sum, -500 + j*step ));
         }
         var line = new THREE.Line( geometry, color );
-        lines.push(line);
+        linesZ.push(line);
         scene.add(line);
     }
 };
 
+var createSpaceTimeX = function () {
+    var color = new THREE.LineBasicMaterial( { color: new THREE.Color(1,0,0) } );
+    var floor = 0;
+    var step = 25;
+    for (var i = 0; i <= 40; i++ ) {
+        var geometry = new THREE.Geometry();
+        for (var j = 0; j<= 40; j++) {
+            var sum = 0;
+            for (var k = 0; k < planets.length; k++) {
 
+                var dist = computeDistance(planets[k].position,[(i-20)*25,(j-20)*25]);
+                if (dist < 500) {
+                    sum -= 100/(Math.pow(dist,1/2));
+                }
+            }
+            geometry.vertices.push( new THREE.Vector3( - 500 + j*step, sum, -500 + i*step ));
+        }
+        var line = new THREE.Line( geometry, color );
+        linesX.push(line);
+        scene.add(line);
+    }
+};
 
 var computeWarping = function () {
-    var neighborhood = 3;
-    //reset all to 0
-    for (var i = 0; i < lines.length; i++) {
-        for (var j = 0; j < lines[i].geometry.vertices.length; j++) {
-           scene.remove(lines[i]);
+    //remove all
+    for (var i = 0; i < linesZ.length; i++) {
+        for (var j = 0; j < linesZ[i].geometry.vertices.length; j++) {
+           scene.remove(linesZ[i]);
+           scene.remove(linesX[i]);
         }
     }
-    createSpaceTime();
-    //update all
-
-    /*for (var i = 0; i < lines.length; i++) {
-        for (var j = 0; j < lines[i].geometry.vertices.length; j++) {
-            lines[i].geometry.vertices[j].y = Math.random() * 10;
-        }
-    }*/
-
-    
-    /*for (var i=0; i<planets.length; i++) {
-        var x = round25(planets[i].position.x/scale*500)/25;
-        var y = round25(planets[i].position.y/scale*500)/25;
-
-        for (var j = -neighborhood+x; j <= neighborhood+x; j++) {
-            for (var k = -neighborhood+y; k <= neighborhood+y; k++) {
-                if (j > -20 && k > -20 && j < 20 && k < 20) {
-                    var weight = computeWeight(planets[i].position,[j*25,k*25]);
-                    lines[j+20].geometry.vertices[k+20].y -= weight;
-                    //console.log(weight);
-                    console.log("Updated");
-                }
-
-            }
-        }
-    }
-    for (var i = 0; i < lines.length; i++) {
-        for (var j = 0; j < lines[i].geometry.vertices.length; j++) {
-            //lines[i].geometry.vertices[j].y = Math.random() * 10;
-        }
-    }*/
+    createSpaceTimeZ();
+    createSpaceTimeX();
 };
 
 var computeDistance = function (positionPlanet,positionNode) {
@@ -305,28 +300,6 @@ var computeDistance = function (positionPlanet,positionNode) {
     var dy = (positionPlanet.y/scale*500) - positionNode[1];
     return Math.sqrt(dx*dx + dy*dy);
 };
-
-var createSpace = function () {
-
-    var geometry = new THREE.Geometry();
-    var floor = -75;
-    var step = 25;
-        for ( var i = 0; i <= 40; i++ ) {
-
-                geometry.vertices.push( new THREE.Vector3( - 500, floor, i * step - (500) ) );
-                geometry.vertices.push( new THREE.Vector3(   (500), floor, i * step - (500) ) );
-
-                geometry.vertices.push( new THREE.Vector3( i * step - (500), floor, -500 ) );
-                geometry.vertices.push( new THREE.Vector3( i * step - (500), floor,  500 ) );
-
-        }
-    return geometry;
-
-};
-
-
-
-
 
 //responds to change of window dimensions
 Simulation.prototype.onWindowResize = function () {
@@ -350,15 +323,11 @@ var scene = new THREE.Scene();
 var planets = [];
 
 
-createPlanet(1.496e11, 0.000e00, 0.000e00, 2.980e04, 5.974e24, 20);
-createPlanet(6.579e12, 0.000e00, 3.410e05, 0.000e00, 1.3055e22, 20);
-createPlanet(5.790e10, 0.000e00, 0.000e00, 4.790e04, 3.302e23, 10);
-createPlanet(0.000e00, 0.000e00, 0.000e00, 0.000e00, 1.989e30, 20);
-createPlanet(1.082e11, 0.000e00, 0.000e00, 3.500e04, 4.869e24, 13)
-createPlanet(3.59e13, 0.000e00,  -1.641e06, 0.000e00, 6.419e33, 10);
-createPlanet(2.279e11, 0.000e00, 0.000e00, 2.410e04, 6.419e23, 20);
-createPlanet(7.779e11, 0.000e00, 0.000e00, 1.307e04, 1.899e27, 30);
-createPlanet(1.427e12, 0.000e00, 0.000e00, 9.639e03, 5.6846e26, 20)
+createPlanet(1.4960e+11, 0.0000e+00, 0.0000e+00, 2.9800e+04, 5.9740e+24, 10, "img/earthmap1k.jpg");//earth.gif
+createPlanet(2.2790e+11, 0.0000e+00, 0.0000e+00, 2.4100e+04, 6.4190e+23, 10, "img/mars_1k_color.jpg");//mars.gif
+createPlanet(5.7900e+10, 0.0000e+00, 0.0000e+00, 4.7900e+04, 3.3020e+23, 8, "img/mercurymap.jpg");// mercury.gif
+createPlanet(0.0000e+00, 0.0000e+00, 0.0000e+00, 0.0000e+00, 1.9890e+30, 23, "img/sunmap.jpg"); //  sun.gif
+createPlanet(1.0820e+11, 0.0000e+00, 0.0000e+00, 3.5000e+04, 4.8690e+24, 9, "img/venusmap.jpg");// venus.gif
 
 
 var simulation = new Simulation();
