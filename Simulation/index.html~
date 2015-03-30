@@ -9,6 +9,8 @@
 	<body>
 		<script src="three.min.js"></script>
                 <script src="Detector.js"></script>
-		<script src="script.js"></script>
+		<script src="Vector2D.js"></script>
+		<script src="Body.js"></script>
+		<script src="Gravity.js"></script>
 	</body>
 </html>

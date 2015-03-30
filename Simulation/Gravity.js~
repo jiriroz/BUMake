@@ -3,7 +3,9 @@ var scale = 2.50e+11;
 var dT = 25000;
 var G = 6.67e-11;
 
-var lines = [];
+var linesX = [];
+var linesZ = [];
+
 
 
 /******************** Helpers ****************/
@@ -20,6 +22,15 @@ var round25 = function(num) {
 
 var createPlanet = function (x,y,velx,vely,mass,radius,img) {
     planets.push(new Body(x,y,velx,vely,mass,radius,img));
+};
+
+//computes distance between
+//positionPlanet = vector2D
+//positionNode = 
+var computeDistance = function (positionPlanet,positionNode) {
+    var dx = (positionPlanet.x/scale*500) - positionNode[0];
+    var dy = (positionPlanet.y/scale*500) - positionNode[1];
+    return Math.sqrt(dx*dx + dy*dy);
 };
 
 /**********************************************************/
@@ -86,7 +97,8 @@ var simulationStep = function () {
     }
 };
 
-var createSpaceTime = function (direction) {
+
+var createSpaceTimeZ = function () {
     var color = new THREE.LineBasicMaterial( { color: new THREE.Color(1,0,0) } );
     var floor = 0;
     var step = 25;
@@ -95,35 +107,57 @@ var createSpaceTime = function (direction) {
         for (var j = 0; j<= 40; j++) {
             var sum = 0;
             for (var k = 0; k < planets.length; k++) {
-                var nodePosition = new THREE.Vector2((i-20)*25,(j-20)*25);
-                var x = planets[k].position.x/scale * 500;
-                var y = planets[k].position.y/scale * 500;
-                var planetPosition = new THREE.Vector2(x,y);
-                var distance = planetPosition.distanceTo(nodePosition);
-                sum -= 100/(Math.pow(distance,1/2));
+            
+		var nodePosition = new Vector2D((i-20)*25,(j-20)*25);
+                var distance = dist(planets[k].position,nodePosition);
+                //var distance = computeDistance(planets[k].position,[(i-20)*25,(j-20)*25]);
+                if (distance < 500) {
+                    sum -= 100/(Math.sqrt(distance));
+                }
             }
-            if (direction.toLowerCase() == "x") {
-                geometry.vertices.push( new THREE.Vector3( - 500 + j*step, sum, -500 + i*step ));
-            } else if (direction.toLowerCase() == "z") {
-                geometry.vertices.push( new THREE.Vector3( - 500 + i*step, sum, -500 + j*step ));
-            }
+            geometry.vertices.push( new THREE.Vector3( - 500 + i*step, sum, -500 + j*step ));
         }
         var line = new THREE.Line( geometry, color );
-       
-        lines.push(line);
+        linesZ.push(line);
+        scene.add(line);
+    }
+};
+
+var createSpaceTimeX = function () {
+    var color = new THREE.LineBasicMaterial( { color: new THREE.Color(1,0,0) } );
+    var floor = 0;
+    var step = 25;
+    for (var i = 0; i <= 40; i++ ) {
+        var geometry = new THREE.Geometry();
+        for (var j = 0; j<= 40; j++) {
+            var sum = 0;
+            for (var k = 0; k < planets.length; k++) {
+
+		var nodePosition = new Vector2D((i-20)*25,(j-20)*25);
+                var distance = dist(planets[k].position,nodePosition);
+                //var distance = computeDistance(planets[k].position,[(i-20)*25,(j-20)*25]);
+                if (distance < 500) {
+                    sum -= 100/(Math.pow(distance,1/2));
+                }
+            }
+            geometry.vertices.push( new THREE.Vector3( - 500 + j*step, sum, -500 + i*step ));
+        }
+        var line = new THREE.Line( geometry, color );
+        linesX.push(line);
         scene.add(line);
     }
 };
 
 var computeWarping = function () {
     //remove all
-    for (var i = 0; i < lines.length; i++) {
-        for (var j = 0; j < lines[i].geometry.vertices.length; j++) {
-           scene.remove(lines[i]);
+    for (var i = 0; i < linesZ.length; i++) {
+        for (var j = 0; j < linesZ[i].geometry.vertices.length; j++) {
+           scene.remove(linesZ[i]);
+           scene.remove(linesX[i]);
         }
     }
-    createSpaceTime("Z");
-    createSpaceTime("X");
+    createSpaceTimeZ();
+    createSpaceTimeX();
 };
 
 //responds to change of window dimensions

@@ -1,0 +1,79 @@
+
+/***************** Vector2D Class ***********/
+
+function Vector2D (xp,yp) {
+    this.x = xp;
+    this.y = yp;
+}
+
+Vector2D.prototype.copy = function() {
+    return new Vector2D(this.x, this.y);
+};
+
+Vector2D.prototype.sub = function(other) {
+    this.x -= other.x;
+    this.y -= other.y;
+};
+
+function sub (v1, v2) {
+    var v3 = v1.copy();
+    v3.sub(v2);
+    return v3;
+}
+
+Vector2D.sub = function(v1, v2) {
+    var v3 = v1.copy();
+    v3.sub(v2);
+    return v3;
+};
+
+Vector2D.prototype.add = function(other) {
+    this.x += other.x;
+    this.y += other.y;
+};
+
+Vector2D.add = function(v1, v2) {
+    var v3 = v1.copy();
+    v3.add(v2);
+    return v3;
+};
+
+Vector2D.prototype.mult = function(scalar) {
+    this.x *= scalar;
+    this.y *= scalar;
+};
+
+Vector2D.mult = function(v1, scalar) {
+    var v3 = v1.copy();
+    v3.mult(scalar);
+    return v3;
+};
+
+Vector2D.prototype.div = function(scalar) {
+    this.x /= scalar;
+    this.y /= scalar;
+};
+
+Vector2D.div = function(v1, scalar) {
+    var v3 = v1.copy();
+    v3.div(scalar);
+    return v3;
+};
+
+Vector2D.prototype.mag = function() {
+    return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+};
+
+Vector2D.prototype.normalize = function() {
+    this.div(this.mag());
+};
+
+function dist (v1, v2) {
+    var v3 = sub(v2,v1);
+    return v3.mag();    
+}
+
+Vector2D.dist = function(v1, v2) {
+    var v3 = Vector2D.sub(v2,v1);
+    return v3.mag();    
+};
