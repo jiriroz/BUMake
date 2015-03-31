@@ -3,16 +3,16 @@
 
 /***********************************************************/
 //Planet body
-function Body (x, y, velx, vely, mass, radius, img) {
+function Body (x, y, velx, vely, mass, radius, img, scene) {
     this.position = new THREE.Vector2(x,y);
     this.velocity = new THREE.Vector2(velx,vely);
     this.acceleration = new THREE.Vector2(0,0);
     this.mass = mass;
-    this.createImage(radius, img);
+    this.createImage(radius, img, scene);
 }
 
 //creates a uniformly colored sphere
-Body.prototype.createImage = function (radius, img) {
+Body.prototype.createImage = function (radius, img, scene) {
     var map = THREE.ImageUtils.loadTexture(img);
     map.wrapS = map.wrapT = THREE.RepeatWrapping;
     map.anisotropy = 16;
