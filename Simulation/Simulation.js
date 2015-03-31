@@ -10,6 +10,9 @@ function Simulation () {
     this.gravityField = 1/6;
     //depth of the bending of spacetime
     this.bendingDepth = 100;
+    this.width = 500;
+    this.step = 15;
+    this.lineCount = this.width * 2 / this.step;
     this.scene = new THREE.Scene();
     this.planets = [];
     this.lines = [];
@@ -23,6 +26,8 @@ Simulation.prototype.init = function () {
     this.setupLight();
     this.setupRenderer();
     this.addToHTML();
+    this.createSpaceTime("X");
+    this.createSpaceTime("Z");
 };
 
 Simulation.prototype.setupCamera = function () {
@@ -77,50 +82,47 @@ Simulation.prototype.simulationStep = function () {
 };
 
 Simulation.prototype.computeWarping = function () {
-    //remove all
-    for (var i = 0; i < this.lines.length; i++) {
-        for (var j = 0; j < this.lines[i].geometry.vertices.length; j++) {
-           this.scene.remove(this.lines[i]);
-        }
-    }
-    //recreate the spacetime
-    this.createSpaceTime("Z");
-    this.createSpaceTime("X");
+    //update spacetime
+    this.updateSpaceTime();
 };
 
 Simulation.prototype.createSpaceTime = function (direction) {
     direction = direction.toLowerCase();
-    var color = new THREE.LineBasicMaterial({ color: new THREE.Color(1,0,0) });
-    var step = 25;
-    for (var i = 0; i <= 40; i++ ) {
+    var color = new THREE.LineBasicMaterial({ color: new THREE.Color(1,0.2,0.2) });
+    for (var i = 0; i <= this.lineCount; i++ ) {
         var geometry = new THREE.Geometry();
-        for (var j = 0; j<= 40; j++) {
-            var sum = 0;
-            for (var k = 0; k < this.planets.length; k++) {
-                if (direction === "x") {
-                    var nodePosition = new THREE.Vector2((j-20)*25,(i-20)*25);
-                } else if (direction === "z") {
-                    var nodePosition = new THREE.Vector2((i-20)*25,(j-20)*25);
-                }
-                var x = this.planets[k].position.x/scale * 500;
-                var y = this.planets[k].position.y/scale * 500;
-                var planetPosition = new THREE.Vector2(x,y);
-                var distance = planetPosition.distanceTo(nodePosition);
-                var depth = this.bendingDepth/(Math.pow(distance,this.gravityField));
-                //limit the depth so that we don't receive unreasonably
-                //deep gravity wells (looks bad).
-                depth = limit(depth,0,100) - 30;
-                sum -= depth;
-            }
+        for (var j = 0; j<= this.lineCount; j++) {
             if (direction === "x") {
-                geometry.vertices.push( new THREE.Vector3( -500 + j*step, sum, -500 + i*step ));
+                geometry.vertices.push( new THREE.Vector3( -this.width + j*this.step, 0, -this.width + i*this.step ));
             } else if (direction === "z") {
-                geometry.vertices.push( new THREE.Vector3( -500 + i*step, sum, -500 + j*step ));
+                geometry.vertices.push( new THREE.Vector3( -this.width + i*this.step, 0, -this.width + j*this.step ));
             }
         }
         var line = new THREE.Line(geometry, color);
         this.lines.push(line);
         this.scene.add(line);
+    }
+};
+
+Simulation.prototype.updateSpaceTime = function () {
+    for (var i = 0; i < this.lines.length; i++) {
+        for (var j = 0; j < this.lines[i].geometry.vertices.length; j++) {
+            this.lines[i].geometry.vertices[j].y = 0;
+            for (var k = 0; k < this.planets.length; k++) {
+                var position3 = this.lines[i].geometry.vertices[j];
+                var nodePosition = new THREE.Vector2(position3.x,position3.z);
+                var x = this.planets[k].position.x/scale * this.width;
+                var y = this.planets[k].position.y/scale * this.width;
+                var planetPosition = new THREE.Vector2(x,y);
+                var distance = planetPosition.distanceTo(nodePosition);
+                var depth = this.bendingDepth/(Math.pow(distance,this.gravityField));
+                //limit the depth so that we don't receive unreasonably
+                //deep gravity wells (looks bad).
+                depth = limit(depth,0,200) - 30;
+                this.lines[i].geometry.verticesNeedUpdate = true;
+                this.lines[i].geometry.vertices[j].y -= depth;
+            }
+        }
     }
 };
 
@@ -138,16 +140,6 @@ Simulation.prototype.onWindowResize = function () {
 /*
 Helpers
 */
-
-//rounds the number to the nearest multiple of 25.
-var round25 = function(num) {
-    var mod = num%25;
-    if (mod < 12.5) {
-        return num - mod;
-    } else {
-        return num + (25 - mod);
-    }
-};
 
 var limit = function (num, min, max) {
     if (min > max) {
