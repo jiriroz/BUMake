@@ -7,6 +7,8 @@ function Body (x, y, velx, vely, mass, radius, img, scene) {
     this.position = new THREE.Vector2(x,y);
     this.velocity = new THREE.Vector2(velx,vely);
     this.acceleration = new THREE.Vector2(0,0);
+    this.rotation = 0;
+    this.angularVelocity = -0.04;
     this.mass = mass;
     this.createImage(radius, img, scene);
 }
@@ -32,11 +34,6 @@ Body.prototype.run = function () {
     this.display();
 };
 
-//displays the body
-Body.prototype.display = function () {
-    this.image.position.set(this.position.x / scale * 500, 0, this.position.y / scale * 500);
-};
-
 //gets called for every step of the animation,
 //updates the properties of the body
 Body.prototype.update = function () {
@@ -47,6 +44,13 @@ Body.prototype.update = function () {
     velScaled.multiplyScalar(dT);
     this.position.add(velScaled);
     this.acceleration.multiplyScalar(0);
+    this.rotation += this.angularVelocity;
+};
+
+//displays the body
+Body.prototype.display = function () {
+    this.image.position.set(this.position.x / scale * 500, 0, this.position.y / scale * 500);
+    this.image.rotation.y = this.rotation;
 };
 
 //a = F / m

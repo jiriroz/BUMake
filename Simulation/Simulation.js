@@ -5,11 +5,6 @@ Simulation class
 */
 
 function Simulation () {
-    //the power of distance to which the gravity is indirectly proportional.
-    //for example, when equal to 2, gravity is proportional to 1 / distance^2
-    this.gravityField = 1/6;
-    //depth of the bending of spacetime
-    this.bendingDepth = 100;
     this.width = 500;
     this.step = 15;
     this.lineCount = this.width * 2 / this.step;
@@ -31,23 +26,23 @@ Simulation.prototype.init = function () {
 };
 
 Simulation.prototype.setupCamera = function () {
-    this.camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
     this.camera.position.z = 800;
     this.camera.position.y = 200;
     this.camera.rotation.x = -Math.PI/8;
 };
 
 Simulation.prototype.setupLight = function () {
-    this.scene.add( new THREE.AmbientLight( 0x404040 ) );
-    var light = new THREE.DirectionalLight( 0xffffff );
-    light.position.set( 0, 1, 0 );
+    this.scene.add( new THREE.AmbientLight(0x404040));
+    var light = new THREE.DirectionalLight(0xffffff);
+    light.position.set(0, 1, 0);
     this.scene.add(light);
 };
 
 Simulation.prototype.setupRenderer = function () {
     this.renderer = new THREE.WebGLRenderer( { antialias: true } );
-    this.renderer.setPixelRatio( window.devicePixelRatio );
-    this.renderer.setSize( window.innerWidth, window.innerHeight );
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
 };
 
 Simulation.prototype.addToHTML = function () {
@@ -113,14 +108,23 @@ Simulation.prototype.updateSpaceTime = function () {
                 var nodePosition = new THREE.Vector2(position3.x,position3.z);
                 var x = this.planets[k].position.x/scale * this.width;
                 var y = this.planets[k].position.y/scale * this.width;
+                var mass = this.planets[k].mass;
                 var planetPosition = new THREE.Vector2(x,y);
                 var distance = planetPosition.distanceTo(nodePosition);
-                var depth = this.bendingDepth/(Math.pow(distance,this.gravityField));
+                distance = limit(distance,5,10000);
+                distance = distance / this.width * scale;
+
+                //actual
+                //var field = 10000 * G * mass / Math.pow(distance, 2);
+
+                //nice-looking
+                var field = 1000 * Math.pow(mass,1/3) / Math.pow(distance, 1);
+
                 //limit the depth so that we don't receive unreasonably
                 //deep gravity wells (looks bad).
-                depth = limit(depth,0,200) - 30;
+                field = limit(field,0,800);
                 this.lines[i].geometry.verticesNeedUpdate = true;
-                this.lines[i].geometry.vertices[j].y -= depth;
+                this.lines[i].geometry.vertices[j].y -= field;
             }
         }
     }
